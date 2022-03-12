@@ -92,52 +92,64 @@
 
     function getClips($config, $login) {
         $cursorPagination = '';
+        
+        $end = false;
+        $allClips = [];
+        $index = 0;
 
-        $curl_clips = curl_init('https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
-            '&client-ID=' . $config['client_id'] . 
-            '&started_at=' . getEndedDate("week") . 
-            '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) );
-                    
-        initCurlOpt($config, $curl_clips, 'GET');
-        curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
+        while($end === false) {   
+            $url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
+                        '&client-ID=' . $config['client_id'] . 
+                        '&started_at=' . getEndedDate("week") . 
+                        '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&after=' . $cursorPagination ;
 
-        $clips = curl_exec($curl_clips);
+            $curl_clips = curl_init($url);
+                            
+            initCurlOpt($config, $curl_clips, 'GET');
+            curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
 
-        if($clips === false) {
-            var_dump(curl_error($curl_clips));
-        } else {
-            if(curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) === 200) {
+            $clips = curl_exec($curl_clips);
 
-                // TODO : pagination pour récupérer tous les résultats sur period donnée : all/day/week/month
-                $clips = json_decode($clips, true);
-                $cursorPagination = $clips['pagination']['cursor'];
-
-                foreach($clips['data'] as $clip) {
-                    $videoUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
-                }
-
-                shuffle($videoUrls);
-
-                /*foreach($videoUrls as $videoUrl) {
-                    // TODO : vérifier la fin de la vidéo en cours avant de lancer la prochaine
-                    
-                }*/
-
-                $style = 'position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;';
-                echo '<div id="background" style="' . $style . ' background-color: #202020">
-                        <video id="clip" autoplay="true" type="video/mp4" src="' . $videoUrls[0] . '" style="'. $style .'">
-                            <img src="" alt="' . $videoUrls[0] . '" title="Your browser does not support the video tag">
-                        </video>
-                    </div>';
-
-                //return $clips;
+            if($clips === false) {
+                var_dump(curl_error($curl_clips));
             } else {
-                echo 'error dude'; // TODO
+                if(curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) === 200) {
+                    $clips = json_decode($clips, true);
+
+                    if(isset($clips['pagination']['cursor'])) {
+                        $cursorPagination = $clips['pagination']['cursor'];
+                    } else {
+                        $cursorPagination = '';
+                    }
+
+                    array_push($allClips, $clips);
+
+                    if($cursorPagination == null || strlen($cursorPagination) == 0){
+                        $end = true;
+                    }else{
+                        $index++;
+                    }
+                }
             }
+            curl_close($curl_clips);
         }
         
-        curl_close($curl_clips);
-        
+        foreach($allClips as $clips) {
+            foreach($clips['data'] as $clip){
+                $videoUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
+            }
+        }
+
+        shuffle($videoUrls);
+
+        var_dump($videoUrls);
+
+        $style = 'position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;';
+        echo '<div id="background" style="' . $style . ' background-color: #202020">
+                <video id="clip" autoplay="true" type="video/mp4" src="' . $videoUrls[0] . '" style="'. $style .'">
+                    <img src="" alt="' . $videoUrls[0] . '" title="Your browser does not support the video tag">
+                </video>
+            </div>';
     }
 
     echo getClips($config, "bastiui");
