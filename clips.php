@@ -1,20 +1,20 @@
 <?php
 
-    function initCurlOpt($resource, $customRequest) {
+    include 'config.php';
+    
+    function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
-            CURLOPT_CAINFO => 'C:\wamp64\bin\php\php7.4.26\extras\cacert.crt',
+            CURLOPT_CAINFO => $config['cert'],
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 2,
             CURLOPT_CUSTOMREQUEST => $customRequest
         ]);
     }
 
-    function getAccessToken() {
-        include 'config.php';
-
+    function getAccessToken($config) {
         $curl_token = curl_init('https://id.twitch.tv/oauth2/token?client_id=' . $config['client_id'] . '&client_secret=' . $config['client_secret'] . '&grant_type=client_credentials');
 
-        initCurlOpt($curl_token, 'POST');
+        initCurlOpt($config, $curl_token, 'POST');
         
         $accessToken = curl_exec($curl_token);
     
@@ -32,15 +32,13 @@
         curl_close($curl_token);
     }
 
-    //echo getAccessToken();
+    //echo getAccessToken($config);
 
-    function getBroadcasterIdFromLogin($login) {
-        include 'config.php';
-
+    function getBroadcasterIdFromLogin($config, $login) {
         $curl_broadcasterId = curl_init('https://api.twitch.tv/helix/users?login=' . $login);
 
-        initCurlOpt($curl_broadcasterId, 'GET');
-        curl_setopt($curl_broadcasterId, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken(), 'client-ID: ' . $config['client_id']));
+        initCurlOpt($config, $curl_broadcasterId, 'GET');
+        curl_setopt($curl_broadcasterId, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
         
         $broadcasterId = curl_exec($curl_broadcasterId);
     
@@ -60,14 +58,18 @@
 
     //echo getBroadcasterIdFromLogin('bastiui');
 
+    function replaceThumbnailUrlToVideoUrl($config, $thumbnailUrl) {
+        $videoUrl = preg_replace('/-preview-[A-Za-z_0-9]*.jpg/', '.mp4', $thumbnailUrl);
+        return $videoUrl;
+    }
 
-    function getClips($login) {
-        include 'config.php';
-        
-        $curl_clips = curl_init('https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($login) . '&client-ID=' . $config['client_id']);
+    function getClips($config, $login) {
+        $cursorPagination = '';
 
-        initCurlOpt($curl_clips, 'GET');
-        curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken(), 'client-ID: ' . $config['client_id']));
+        $curl_clips = curl_init('https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . '&client-ID=' . $config['client_id'] . 'after=' . $cursorPagination);
+                    
+        initCurlOpt($config, $curl_clips, 'GET');
+        curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
 
         $clips = curl_exec($curl_clips);
 
@@ -75,11 +77,22 @@
             var_dump(curl_error($curl_clips));
         } else {
             if(curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) === 200) {
-                // Pagination
-                //$clips = json_decode($clips, true);
-                //$cursorPagination = $clips['pagination']['cursor'];
 
-                return $clips;
+                // TODO : pagination pour récupérer tous les résultats sur period donnée : all/day/week/month
+                $clips = json_decode($clips, true);
+                $cursorPagination = $clips['pagination']['cursor'];
+
+                foreach($clips['data'] as $clip) {
+                    $thumbnailUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
+                }
+                //print_r($thumbnailUrls);
+
+                foreach($thumbnailUrls as $thumbnailUrl) {
+                    // TODO : vérifier la fin de la vidéo en cours avant de lancer la prochaine
+                    echo '<video id="clip" autoplay="" src="' . $thumbnailUrl . '" width="100%" height="100%">';
+                }
+
+                //return $clips;
             } else {
                 echo 'error dude'; // TODO
             }
@@ -89,7 +102,7 @@
         
     }
 
-    echo getClips("bastiui");
+    echo getClips($config, "bastiui");
 
     
 ?>
