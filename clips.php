@@ -63,10 +63,40 @@
         return $videoUrl;
     }
 
+    function getEndedDate($period) {
+        switch($period) {
+            case "all":
+                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1200 months"));
+                break;
+            case "day":
+                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1 day"));
+                break;
+            case "week":
+                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1 week"));
+                break;
+            case "month":
+                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1 month"));
+                break;
+            case "trim":
+                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-3 months"));
+                break;
+            case "year":
+                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-12 months"));
+                break;
+        }
+        
+        $endedDateEncoded = urlencode($endedDate);
+
+        return $endedDateEncoded;
+    }
+
     function getClips($config, $login) {
         $cursorPagination = '';
 
-        $curl_clips = curl_init('https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . '&client-ID=' . $config['client_id'] . 'after=' . $cursorPagination);
+        $curl_clips = curl_init('https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
+            '&client-ID=' . $config['client_id'] . 
+            '&started_at=' . getEndedDate("week") . 
+            '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) );
                     
         initCurlOpt($config, $curl_clips, 'GET');
         curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
@@ -83,14 +113,22 @@
                 $cursorPagination = $clips['pagination']['cursor'];
 
                 foreach($clips['data'] as $clip) {
-                    $thumbnailUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
+                    $videoUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
                 }
-                //print_r($thumbnailUrls);
 
-                foreach($thumbnailUrls as $thumbnailUrl) {
+                shuffle($videoUrls);
+
+                /*foreach($videoUrls as $videoUrl) {
                     // TODO : vérifier la fin de la vidéo en cours avant de lancer la prochaine
-                    echo '<video id="clip" autoplay="" src="' . $thumbnailUrl . '" width="100%" height="100%">';
-                }
+                    
+                }*/
+
+                $style = 'position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;';
+                echo '<div id="background" style="' . $style . ' background-color: #202020">
+                        <video id="clip" autoplay="true" type="video/mp4" src="' . $videoUrls[0] . '" style="'. $style .'">
+                            <img src="" alt="' . $videoUrls[0] . '" title="Your browser does not support the video tag">
+                        </video>
+                    </div>';
 
                 //return $clips;
             } else {
