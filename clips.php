@@ -1,12 +1,15 @@
 <?php
 
     include 'config.php';
+
+    ini_set('max_execution_time', '600');
+    set_time_limit(600);
     
     function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
             CURLOPT_CAINFO => $config['cert'],
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 2,
+            CURLOPT_TIMEOUT => 20,
             CURLOPT_CUSTOMREQUEST => $customRequest
         ]);
     }
@@ -67,7 +70,7 @@
         if($period == 'all') {
             $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1200 months"));
         } else {
-            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-" . $period));
+            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-" . $period . 'days'));
         }
         
         $endedDateEncoded = urlencode($endedDate);
@@ -78,55 +81,32 @@
     function getClips($config, $login, $period) {
         $cursorPagination = '';
         
-        $end = false;
-        $allClips = [];
-        $index = 0;
-
-        while($end === false) {   
-            $url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
+        $url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
                         '&client-ID=' . $config['client_id'] . 
                         '&started_at=' . getEndedDate($period) . 
-                        '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&after=' . $cursorPagination ;
+                        '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&first=100';
 
-            $curl_clips = curl_init($url);
+        $curl_clips = curl_init($url);
                             
-            initCurlOpt($config, $curl_clips, 'GET');
-            curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
+        initCurlOpt($config, $curl_clips, 'GET');
+        curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
 
-            $clips = curl_exec($curl_clips);
+        $clips = curl_exec($curl_clips);
 
-            if($clips === false) {
-                var_dump(curl_error($curl_clips));
-            } else {
-                if(curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) === 200) {
-                    $clips = json_decode($clips, true);
-
-                    if(isset($clips['pagination']['cursor'])) {
-                        $cursorPagination = $clips['pagination']['cursor'];
-                    } else {
-                        $cursorPagination = '';
-                    }
-
-                    array_push($allClips, $clips);
-
-                    if($cursorPagination == null || strlen($cursorPagination) == 0){
-                        $end = true;
-                    }else{
-                        $index++;
-                    }
+        if($clips === false) {
+            var_dump(curl_error($curl_clips));
+        } else {
+            if(curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) === 200) {
+                $clips = json_decode($clips, true);
+                foreach($clips['data'] as $clip){
+                    $videoUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
                 }
-            }
-            curl_close($curl_clips);
-        }
-        
-        foreach($allClips as $clips) {
-            foreach($clips['data'] as $clip){
-                $videoUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
+                
             }
         }
+        curl_close($curl_clips);
 
-        shuffle($videoUrls);
-
+        //return json_encode($videoUrls, JSON_UNESCAPED_SLASHES);
         var_dump($videoUrls);
 
         /*$style = 'position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;';
@@ -137,7 +117,6 @@
             </div>';*/
     }
 
-    echo getClips($config, "bastiui", "2 days");
-
+    echo getClips($config, "bastiui", "all");
     
 ?>
