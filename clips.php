@@ -63,11 +63,11 @@
         return $videoUrl;
     }
 
-    function getEndedDate($number, $duration) {
-        if($number == '' && $duration == "all") {
+    function getEndedDate($period) {
+        if($period == 'all') {
             $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1200 months"));
         } else {
-            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-" . $number . " " . $duration));
+            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-" . $period));
         }
         
         $endedDateEncoded = urlencode($endedDate);
@@ -75,7 +75,7 @@
         return $endedDateEncoded;
     }
 
-    function getClips($config, $login) {
+    function getClips($config, $login, $period) {
         $cursorPagination = '';
         
         $end = false;
@@ -85,7 +85,7 @@
         while($end === false) {   
             $url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
                         '&client-ID=' . $config['client_id'] . 
-                        '&started_at=' . getEndedDate("2", "days") . 
+                        '&started_at=' . getEndedDate($period) . 
                         '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&after=' . $cursorPagination ;
 
             $curl_clips = curl_init($url);
@@ -137,7 +137,7 @@
             </div>';*/
     }
 
-    echo getClips($config, "bastiui");
+    echo getClips($config, "bastiui", "2 days");
 
     
 ?>
