@@ -63,26 +63,11 @@
         return $videoUrl;
     }
 
-    function getEndedDate($period) {
-        switch($period) {
-            case "all":
-                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1200 months"));
-                break;
-            case "day":
-                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1 day"));
-                break;
-            case "week":
-                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1 week"));
-                break;
-            case "month":
-                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1 month"));
-                break;
-            case "trim":
-                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-3 months"));
-                break;
-            case "year":
-                $endedDate = date("Y-m-d\TH:i:sP", strtotime("-12 months"));
-                break;
+    function getEndedDate($number, $duration) {
+        if($number == '' && $duration == "all") {
+            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1200 months"));
+        } else {
+            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-" . $number . " " . $duration));
         }
         
         $endedDateEncoded = urlencode($endedDate);
@@ -100,7 +85,7 @@
         while($end === false) {   
             $url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
                         '&client-ID=' . $config['client_id'] . 
-                        '&started_at=' . getEndedDate("week") . 
+                        '&started_at=' . getEndedDate("2", "days") . 
                         '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&after=' . $cursorPagination ;
 
             $curl_clips = curl_init($url);
@@ -144,12 +129,12 @@
 
         var_dump($videoUrls);
 
-        $style = 'position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;';
+        /*$style = 'position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;';
         echo '<div id="background" style="' . $style . ' background-color: #202020">
                 <video id="clip" autoplay="true" type="video/mp4" src="' . $videoUrls[0] . '" style="'. $style .'">
                     <img src="" alt="' . $videoUrls[0] . '" title="Your browser does not support the video tag">
                 </video>
-            </div>';
+            </div>';*/
     }
 
     echo getClips($config, "bastiui");
