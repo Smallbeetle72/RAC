@@ -1,15 +1,12 @@
 <?php
 
     include 'config.php';
-
-    ini_set('max_execution_time', '600');
-    set_time_limit(600);
     
     function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
             CURLOPT_CAINFO => $config['cert'],
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 20,
+            CURLOPT_TIMEOUT => 2, // secondes
             CURLOPT_CUSTOMREQUEST => $customRequest
         ]);
     }
@@ -28,7 +25,7 @@
                 $accessToken = json_decode($accessToken, true); 
                 return $accessToken['access_token'];
             } else {
-                echo 'error dude'; // TODO
+                echo 'error one'; // TODO
             }
         }
     
@@ -52,7 +49,7 @@
                 $broadcasterId = json_decode($broadcasterId, true);
                 return $broadcasterId['data'][0]['id'];
             } else {
-                echo 'error dude'; // TODO
+                echo 'error two'; // TODO
             }
         }
     
@@ -78,8 +75,13 @@
         return $endedDateEncoded;
     }
 
+    $login = $_POST['login'] ?? '';
+    $period = $_POST['period'] ?? '';
+    $index = $_POST['index'] ?? '';
+
     function getClips($config, $login, $period) {
-        $cursorPagination = '';
+        
+        $videoUrls = [];
         
         $url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
                         '&client-ID=' . $config['client_id'] . 
@@ -98,25 +100,28 @@
         } else {
             if(curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) === 200) {
                 $clips = json_decode($clips, true);
-                foreach($clips['data'] as $clip){
-                    $videoUrls[] = replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']);
+                foreach($clips['data'] as $clip) {
+                    array_push($videoUrls, replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']));
                 }
-                
+            } else {
+                echo 'error three'; // TODO
             }
         }
         curl_close($curl_clips);
 
-        //return json_encode($videoUrls, JSON_UNESCAPED_SLASHES);
-        var_dump($videoUrls);
-
-        /*$style = 'position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;';
-        echo '<div id="background" style="' . $style . ' background-color: #202020">
-                <video id="clip" autoplay="true" type="video/mp4" src="' . $videoUrls[0] . '" style="'. $style .'">
-                    <img src="" alt="' . $videoUrls[0] . '" title="Your browser does not support the video tag">
-                </video>
-            </div>';*/
+        if(isset($videoUrls)) {
+            return json_encode($videoUrls, JSON_UNESCAPED_SLASHES);
+        }
     }
 
-    echo getClips($config, "bastiui", "all");
+    //echo getClips($config, $login, $period);
+
+    function getOneClip($videoUrls, $index) {
+        $clips = json_decode($videoUrls, true);
+        //shuffle($clips); // TODO à supprimer pour le faire dans le JS
+        return $clips[$index];
+    }
+
+    echo getOneClip(getClips($config, $login, $period), $index);
     
 ?>
