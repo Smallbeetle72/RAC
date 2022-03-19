@@ -1,56 +1,70 @@
 <!DOCTYPE HTML>
     <head>
+        <meta charset="UTF-8">
         <style>
-            #clips   {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;}
-            #clip    {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;}
+            #clips, #clip   {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: #202020;}
         </style>
     </head>
     <body>
         <div id="clips">
             <video id="clip" autoplay="true" type="video/mp4" src="">
-                <img src="" alt="" title="Your browser does not support the video tag">
+                <img id="img" src="" alt="" title="Your browser does not support the video tag">
             </video>
         </div>
         
         <script>
-            let login = "bastiui";
-            let period = "1";
-            let index = 0;
+            const login = "bastiui";
+            const period = "all";
+            let index = 6;
+            let clips;
 
-            // TODO : récupérer tous les résultats d'un coup et les traiter tous ici plutôt que faire un ping pong front <-> back
-            function getClip(index) {
+            async function getClips() {
                 try {
-                    fetch("http://localhost/RAC/clips.php", {
+                    const response = await fetch("http://localhost/RAC/clips.php", {
                         method: "POST",
                         headers: {
                         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                         },
-                        body: `login=${login}&period=${period}&index=${index}`,
-                    })
-                    .then((response) => response.text())
-                    .then((res) => document.getElementById('clip').setAttribute('src', res));
+                        body: `login=${login}&period=${period}`,
+                    });
+                    if (!response.ok) {
+                        const message = `An error has occured: ${response.status}`;
+                        throw new Error(message);
+                    }
+                    const allClips = await response.json();
 
+                    return allClips;
                 } catch (error) {
                     console.log(error);
                 }
             }
 
-            // TODO : checker taille du tableau pour reboucler en index[0] si on a atteint la dernière vidéo du tableau
-            function runClip() {
+            function getClip(index) {
+                document.getElementById('clip').setAttribute('src', clips[index]);
+                document.getElementById('img').setAttribute('src', clips[index]);
+                document.getElementById('img').setAttribute('alt', clips[index]);
+            }
+
+            async function runClip() {
+                clips = await getClips();
+                let length = clips.length;
+
+                getClip(index);
                 document.getElementById('clip').addEventListener('ended', myHandler, false);
                 function myHandler(e) {
                     if(!e) { e = window.event; }
-                    getClip(index);
-                    index++;
+                    if(index == length-1) {
+                        index = 0;
+                        getClip(index);
+                    } else {
+                        getClip(++index);
+                    }
+                        
                 }
             }
-
-            getClip(index);
+            
             runClip();
 
-            
-
         </script>
-
     </body>
 </HTML>

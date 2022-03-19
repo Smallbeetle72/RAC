@@ -25,14 +25,12 @@
                 $accessToken = json_decode($accessToken, true); 
                 return $accessToken['access_token'];
             } else {
-                echo 'error one'; // TODO
+                die("A problem getting access token occured");
             }
         }
     
         curl_close($curl_token);
     }
-
-    //echo getAccessToken($config);
 
     function getBroadcasterIdFromLogin($config, $login) {
         $curl_broadcasterId = curl_init('https://api.twitch.tv/helix/users?login=' . $login);
@@ -49,14 +47,12 @@
                 $broadcasterId = json_decode($broadcasterId, true);
                 return $broadcasterId['data'][0]['id'];
             } else {
-                echo 'error two'; // TODO
+                die("A problem getting broadcasterId from login occured");
             }
         }
     
         curl_close($curl_broadcasterId);
     }
-
-    //echo getBroadcasterIdFromLogin('bastiui');
 
     function replaceThumbnailUrlToVideoUrl($config, $thumbnailUrl) {
         $videoUrl = preg_replace('/-preview-[A-Za-z_0-9]*.jpg/', '.mp4', $thumbnailUrl);
@@ -77,7 +73,6 @@
 
     $login = $_POST['login'] ?? '';
     $period = $_POST['period'] ?? '';
-    $index = $_POST['index'] ?? '';
 
     function getClips($config, $login, $period) {
         
@@ -104,24 +99,17 @@
                     array_push($videoUrls, replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']));
                 }
             } else {
-                echo 'error three'; // TODO
+                die("A problem getting clips occured");
             }
         }
         curl_close($curl_clips);
 
         if(isset($videoUrls)) {
+            shuffle($videoUrls);
             return json_encode($videoUrls, JSON_UNESCAPED_SLASHES);
         }
     }
 
-    //echo getClips($config, $login, $period);
-
-    function getOneClip($videoUrls, $index) {
-        $clips = json_decode($videoUrls, true);
-        //shuffle($clips); // TODO à supprimer pour le faire dans le JS
-        return $clips[$index];
-    }
-
-    echo getOneClip(getClips($config, $login, $period), $index);
+    echo getClips($config, $login, $period);
     
 ?>
