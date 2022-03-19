@@ -25,7 +25,7 @@
                 $accessToken = json_decode($accessToken, true); 
                 return $accessToken['access_token'];
             } else {
-                die("A problem getting access token occured");
+                die("Code : " . curl_getinfo($curl_token, CURLINFO_HTTP_CODE) . "</br> A problem getting access token occured");
             }
         }
     
@@ -47,7 +47,7 @@
                 $broadcasterId = json_decode($broadcasterId, true);
                 return $broadcasterId['data'][0]['id'];
             } else {
-                die("A problem getting broadcasterId from login occured");
+                die("Code : " . curl_getinfo($curl_broadcasterId, CURLINFO_HTTP_CODE) . "</br> A problem getting access token occured");
             }
         }
     
@@ -99,7 +99,7 @@
                     array_push($videoUrls, replaceThumbnailUrlToVideoUrl($config, $clip['thumbnail_url']));
                 }
             } else {
-                die("A problem getting clips occured");
+                die("Code : " . curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) . "</br> A problem getting access token occured");
             }
         }
         curl_close($curl_clips);

@@ -13,10 +13,14 @@
         </div>
         
         <script>
-            const login = "bastiui";
-            const period = "all";
-            let index = 6;
+            const INDEX = 0;
+            let index = INDEX;
             let clips;
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const login = urlParams.get('login');
+            const period = urlParams.get('period');
 
             async function getClips() {
                 try {
@@ -54,7 +58,7 @@
                 function myHandler(e) {
                     if(!e) { e = window.event; }
                     if(index == length-1) {
-                        index = 0;
+                        index = INDEX;
                         getClip(index);
                     } else {
                         getClip(++index);
