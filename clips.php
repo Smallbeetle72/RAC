@@ -1,11 +1,11 @@
 <?php
 
-    include 'config.php';
+    include 'config-local.php';
     
     function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
-            CURLOPT_CAINFO => $config['cert'],
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CAINFO => $config['cert'], // A garder seulement pour localhost
             CURLOPT_TIMEOUT => 2, // secondes
             CURLOPT_CUSTOMREQUEST => $customRequest
         ]);

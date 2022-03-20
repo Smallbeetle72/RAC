@@ -52,4 +52,5 @@ crashlytics-build.properties
 *.psd
 
 # Fichier de config de RAC
+config-local.php
 config.php
