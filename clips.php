@@ -5,14 +5,16 @@
     function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CAINFO => $config['cert'], // A garder seulement pour localhost
             CURLOPT_TIMEOUT => 2, // secondes
             CURLOPT_CUSTOMREQUEST => $customRequest
         ]);
     }
 
     function getAccessToken($config) {
-        $curl_token = curl_init('https://id.twitch.tv/oauth2/token?client_id=' . $config['client_id'] . '&client_secret=' . $config['client_secret'] . '&grant_type=client_credentials');
+        $curl_token = curl_init($config['getAccessToken'] .
+                        '?client_id=' . $config['client_id'] .
+                        '&client_secret=' . $config['client_secret'] .
+                        '&grant_type=client_credentials');
 
         initCurlOpt($config, $curl_token, 'POST');
         
@@ -33,7 +35,8 @@
     }
 
     function getBroadcasterIdFromLogin($config, $login) {
-        $curl_broadcasterId = curl_init('https://api.twitch.tv/helix/users?login=' . $login);
+        $curl_broadcasterId = curl_init($config['getBroadcasterIdFromLogin'] .
+                        '?login=' . $login);
 
         initCurlOpt($config, $curl_broadcasterId, 'GET');
         curl_setopt($curl_broadcasterId, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
@@ -72,20 +75,18 @@
     }
 
     function getClips($config, $login, $period) {
-        
-        $videoUrls = [];
-        
-        $url = 'https://api.twitch.tv/helix/clips?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
+        $curl_clips = curl_init($config['getClips'] .
+                        '?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
                         '&client-ID=' . $config['client_id'] . 
                         '&started_at=' . getEndedDate($period) . 
-                        '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&first=100';
-
-        $curl_clips = curl_init($url);
+                        '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&first=100');
                             
         initCurlOpt($config, $curl_clips, 'GET');
         curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));
 
         $clips = curl_exec($curl_clips);
+
+        $videoUrls = [];
 
         if($clips === false) {
             // TODO : gérer cas d'erreur

@@ -1,6 +1,7 @@
 const INDEX = 0;
 const LOGIN_CHARS_LIMIT = 20;
 const PERIOD_CHARS_LIMIT = 4;
+
 let index = INDEX;
 let clips;
 
@@ -36,22 +37,20 @@ async function getClips() {
 
 function getClip(index) {
     document.getElementById('clip').setAttribute('src', clips[index]);
-    document.getElementById('imgClip').setAttribute('src', clips[index]);
-    document.getElementById('imgClip').setAttribute('alt', clips[index]);
 }
 
 async function runClip() {
     if(isSizeOfParametersTooLong(login, period)) {
         const message = `Limite de caractères dépassée pour au moins un des paramètres.`;
-        document.getElementById('imgParameterTooLong').setAttribute('src', './images/parameterTooLong.png');
+        document.getElementById('noClipFound').innerHTML += 'Limite de caractères dépassée pour au moins un des paramètres.';
         return;
     }
    
-    
     clips = await getClips();
-    if(clips === 'undefined' || typeof clips[index] == 'undefined') {
-        document.getElementById("imgNoClipFound").setAttribute('src', './images/noclipfound.png');
+    if(clips === undefined || typeof clips[index] == 'undefined') {
+        document.getElementById("noClipFound").innerHTML += 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
     } else {
+        document.getElementById('noClipFound').remove();
         let length = clips.length;
         getClip(index);
         document.getElementById('clip').addEventListener('ended', myHandler, false);
@@ -64,7 +63,6 @@ async function runClip() {
                 getClip(++index);
             }   
         }
-
     }
 
 }
