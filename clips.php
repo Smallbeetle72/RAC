@@ -5,6 +5,7 @@
     function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CAINFO => $config['cert'], // A garder seulement pour localhost
             CURLOPT_TIMEOUT => 2, // secondes
             CURLOPT_CUSTOMREQUEST => $customRequest
         ]);
@@ -79,7 +80,8 @@
                         '?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
                         '&client-ID=' . $config['client_id'] . 
                         '&started_at=' . getEndedDate($period) . 
-                        '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) . '&first=100');
+                        '&ended_at=' . urlencode(date("Y-m-d\TH:i:sP", time())) .
+                        '&first=100');
                             
         initCurlOpt($config, $curl_clips, 'GET');
         curl_setopt($curl_clips, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . getAccessToken($config), 'client-ID: ' . $config['client_id']));

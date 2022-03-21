@@ -39,6 +39,11 @@ function getClip(index) {
     document.getElementById('clip').setAttribute('src', clips[index]);
 }
 
+function isEndOfTheList() {
+    let length = clips.length;
+    return index == length-1;
+}
+
 async function runClip() {
     if(isSizeOfParametersTooLong(login, period)) {
         const message = `Limite de caractères dépassée pour au moins un des paramètres.`;
@@ -51,20 +56,24 @@ async function runClip() {
         document.getElementById("noClipFound").innerHTML += 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
     } else {
         document.getElementById('noClipFound').remove();
-        let length = clips.length;
+
+        clips.forEach(clip => {
+            clip.load; // On charge d'avance tous les clips pour éviter les latences entre chaque vidéo
+        });
+
         getClip(index);
+        
         document.getElementById('clip').addEventListener('ended', myHandler, false);
         function myHandler(e) {
             if(!e) { e = window.event; }
-            if(index == length-1) {
+            if(isEndOfTheList()) {
                 index = INDEX;
                 getClip(index);
             } else {
                 getClip(++index);
-            }   
+            }
         }
     }
-
 }
 
 runClip();
