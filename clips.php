@@ -1,6 +1,6 @@
 <?php
 
-    include 'config-local.php';
+    include 'config.php';
     
     function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
@@ -19,7 +19,7 @@
         $accessToken = curl_exec($curl_token);
     
         if($accessToken === false) {
-            var_dump(curl_error($curl_token));
+            // TODO : gérer cas d'erreur
         } else {
             if(curl_getinfo($curl_token, CURLINFO_HTTP_CODE) === 200) {
                 $accessToken = json_decode($accessToken, true); 
@@ -41,7 +41,7 @@
         $broadcasterId = curl_exec($curl_broadcasterId);
     
         if($broadcasterId === false) {
-            var_dump(curl_error($curl_broadcasterId));
+            // TODO : gérer cas d'erreur
         } else {
             if(curl_getinfo($curl_broadcasterId, CURLINFO_HTTP_CODE) === 200) {
                 $broadcasterId = json_decode($broadcasterId, true);
@@ -71,9 +71,6 @@
         return $endedDateEncoded;
     }
 
-    $login = $_POST['login'] ?? '';
-    $period = $_POST['period'] ?? '';
-
     function getClips($config, $login, $period) {
         
         $videoUrls = [];
@@ -91,7 +88,7 @@
         $clips = curl_exec($curl_clips);
 
         if($clips === false) {
-            var_dump(curl_error($curl_clips));
+            // TODO : gérer cas d'erreur
         } else {
             if(curl_getinfo($curl_clips, CURLINFO_HTTP_CODE) === 200) {
                 $clips = json_decode($clips, true);
@@ -110,6 +107,13 @@
         }
     }
 
-    echo getClips($config, $login, $period);
+    $login = htmlspecialchars($_POST['login']) ?? '';
+    $period = htmlspecialchars($_POST['period']) ?? '';
+
+    if(strlen($login) >= 20 || strlen($period) >= 4) {
+        die("Limite de caractères dépassée pour au moins un des paramètres.");
+    } else {
+        echo getClips($config, $login, $period);
+    }
     
 ?>

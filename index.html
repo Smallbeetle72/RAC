@@ -1,9 +1,10 @@
 <!DOCTYPE HTML>
     <head>
         <meta charset="UTF-8">
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
         <style>
-            #clips, #clip   {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: #202020;}
-            #imgNoClipFound {position: absolute; width: 100%; height: 100%; object-fit: contain;}
+            #clips, #clip                           {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: #202020;}
+            #imgNoClipFound, #imgParameterTooLong   {position: absolute; width: 100%; height: 100%; object-fit: contain;}
         </style>
     </head>
     <body>
@@ -14,71 +15,12 @@
             <div id="noClipFound">
                 <img id="imgNoClipFound" src="" alt="Aucun clip trouvé. Retentez avec une période plus large ou vérifiez l'orthographe du nom de la chaine souhaitée." title="No clip found">
             </div>
+            <div id="error">
+                <img id="imgParameterTooLong" src="" alt="Limite de caractères dépassée pour au moins un des paramètres." title="No clip found">
+            </div>
         </div>
-            
-        <script>
-            const INDEX = 0;
-            let index = INDEX;
-            let clips;
 
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            const login = urlParams.get('login');
-            const period = urlParams.get('period');
+        <script type = "text/javascript" src = "./clips.js"></script>
 
-            async function getClips() {
-                try {
-                    // TODO : mettre l'URL dans un fichier de conf
-                    const response = await fetch("http://localhost/RAC/clips.php", {
-                        method: "POST",
-                        headers: {
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                        },
-                        body: `login=${login}&period=${period}`,
-                    });
-                    if (!response.ok) {
-                        const message = `An error has occured: ${response.status}`;
-                        throw new Error(message);
-                    }
-                    const allClips = await response.json();
-
-                    return allClips;
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-
-            function getClip(index) {
-                document.getElementById('clip').setAttribute('src', clips[index]);
-                document.getElementById('imgClip').setAttribute('src', clips[index]);
-                document.getElementById('imgClip').setAttribute('alt', clips[index]);
-            }
-
-            async function runClip() {
-                clips = await getClips();
-
-                if(clips[index] === undefined) {
-                    document.getElementById("imgNoClipFound").setAttribute('src', './images/test.png');
-                } else {
-                    let length = clips.length;
-
-                    getClip(index);
-                    document.getElementById('clip').addEventListener('ended', myHandler, false);
-                    function myHandler(e) {
-                        if(!e) { e = window.event; }
-                        if(index == length-1) {
-                            index = INDEX;
-                            getClip(index);
-                        } else {
-                            getClip(++index);
-                        }
-                            
-                    }
-                }
-            }
-            
-            runClip();
-
-        </script>
     </body>
 </HTML>
