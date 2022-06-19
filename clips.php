@@ -7,6 +7,18 @@
         return $videoUrl;
     }
 
+    function getEndedDate($period) {
+        if($period == 'all') {
+            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-1200 months"));
+        } else {
+            $endedDate = date("Y-m-d\TH:i:sP", strtotime("-" . $period . 'days'));
+        }
+        
+        $endedDateEncoded = urlencode($endedDate);
+
+        return $endedDateEncoded;
+    }
+
     function getClips($config, $login, $period, $view) {
         $curl_clips = curl_init($config['getClips'] .
                         '?broadcaster_id=' . getBroadcasterIdFromLogin($config, $login) . 
