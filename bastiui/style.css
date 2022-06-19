@@ -1,0 +1,127 @@
+@font-face {
+    font-family: FuturaPTBoldItalic;
+    src: url('./fonts/Futura PT Bold Italic W08 Rg.ttf');
+}
+
+body {
+    font-family: FuturaPTBoldItalic, Arial, Helvetica, sans-serif;
+    background-color: #18181B;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+#content {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: 756px 128px 186px;
+}
+
+
+
+/* COLUMNS */
+#sidebar-empty, #logo {
+    grid-column: span 3;
+}
+
+#sidebar-clip, #informations, #noise-tv-screen {
+    grid-column: span 9;
+}
+
+footer {
+    grid-column: span 12;
+}
+
+
+
+/* ROWS */
+#sidebar-empty, #sidebar-clip, #noise-tv-screen {
+    grid-row: 1;
+}
+
+#logo, #informations {
+    grid-row: 2;
+}
+
+footer {
+    grid-row: 3;
+}
+
+
+
+/* TEXT */
+#informations > h1 {
+    font-size: 40px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    margin: 20px 20px 0px 20px;
+    color: #FFFFFF;
+}
+
+#informations > h2 {
+    color: #18181B;
+    font-size: 32px;
+    margin: 0px 20px 0px 20px;
+}
+
+footer {
+    color: #404043;
+    text-align: right;
+    font-size: 24px;
+    padding-right: 24px;
+}
+
+#no-clip-found {
+    color: #FFFFFF;
+    text-align: center;
+}
+
+
+
+/* LOGO */
+#logo img {
+    height: 100%;
+    float: right;
+    margin-right: 10%;
+}
+
+
+
+/* CLIPS */
+#clip {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* INFORMATIONS */
+#informations {
+    background-color: #56575B;
+    flex: 1;
+    min-width: 0;
+}
+
+
+/* NOISE */
+#noise-tv-screen {
+    background: url('images/noise.jpg');
+    animation: animate .5s linear infinite;
+}
+@keyframes animate {
+    0% {
+        background-position: 0 0;
+    }
+    25% {
+        background-position: 0% 25%;
+    }
+    50% {
+        background-position: 50% 0%;
+    }
+    75% {
+        background-position: 0% 75%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
+}
