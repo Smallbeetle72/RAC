@@ -28,7 +28,7 @@ const sidebarClip = document.getElementById('sidebar-clip');
 
 let index = INDEX;
 let clips;
-let audio = new Audio('./sounds/zapping-sound.wav');
+let noiseTVScreenVideo = './videos/zap.mp4';
 
 function isSizeOfParametersTooLong(period, max) {
     if(period.length > PERIOD_CHARS_LIMIT || max.length > MAX_CHARS_LIMIT) {
@@ -84,15 +84,13 @@ async function getClips() {
 }
 
 function displayDataAndPlayClip(clip) {
-    
-
-    audio.play();
-    audio.onplay = function () {
+    noiseTVScreen.play();
+    noiseTVScreen.onplay = function () {
         clipFromDivClip.style.display = 'none';
         noiseTVScreen.style.display = 'block';
     }
 
-    audio.onended = function () {
+    noiseTVScreen.onended = function () {
         displayRandomLogo();
 
         title.innerHTML = clip[POS_TITLE];
@@ -106,7 +104,7 @@ function displayDataAndPlayClip(clip) {
     }
 
     clipFromDivClip.onplay = function () {
-        audio.pause();
+        noiseTVScreen.pause();
         noiseTVScreen.style.display = 'none';
     }
 }
@@ -123,6 +121,8 @@ async function runClips() {
         content.style.display = 'none';
     } else {
         noClipFound.remove();
+
+        noiseTVScreen.src = noiseTVScreenVideo;
 
         displayDataAndPlayClip(clips[index]);
 

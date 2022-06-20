@@ -23,7 +23,7 @@ body {
     grid-column: span 3;
 }
 
-#sidebar-clip, #informations, #noise-tv-screen {
+#sidebar-clip, #informations {
     grid-column: span 9;
 }
 
@@ -34,7 +34,7 @@ footer {
 
 
 /* ROWS */
-#sidebar-empty, #sidebar-clip, #noise-tv-screen {
+#sidebar-empty, #sidebar-clip {
     grid-row: 1;
 }
 
@@ -87,8 +87,8 @@ footer {
 
 
 
-/* CLIPS */
-#clip {
+/* CLIPS & NOISE TV SCREEN */
+#clip, #noise-tv-screen {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -100,28 +100,4 @@ footer {
     background-color: #56575B;
     flex: 1;
     min-width: 0;
-}
-
-
-/* NOISE */
-#noise-tv-screen {
-    background: url('images/noise.jpg');
-    animation: animate .5s linear infinite;
-}
-@keyframes animate {
-    0% {
-        background-position: 0 0;
-    }
-    25% {
-        background-position: 0% 25%;
-    }
-    50% {
-        background-position: 50% 0%;
-    }
-    75% {
-        background-position: 0% 75%;
-    }
-    100% {
-        background-position: 100% 0%;
-    }
 }
