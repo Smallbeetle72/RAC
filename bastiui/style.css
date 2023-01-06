@@ -13,7 +13,7 @@ body {
 #clip-content {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 756px 128px 186px;
+    grid-template-rows: 2fr 128px 186px;
 }
 
 
@@ -91,7 +91,7 @@ footer {
 #clip-video, #noise-tv-screen {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    
 }
 
 
