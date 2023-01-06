@@ -178,7 +178,7 @@ async function showDataClips() {
     if(clips === undefined || typeof clips[index] == 'undefined') {
         NO_CLIP_FOUND.innerHTML = 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
     } else {
-        CLIP_VIDEO.remove();
+        CLIP_CONTENT.remove();
         LIST_OF_CLIPS.remove();
         NO_CLIP_FOUND.remove();
         getdataFromClips();        
