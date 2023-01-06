@@ -78,7 +78,6 @@ function getClip(index) {
 
 // Lecture bouclée sur tous les clips
 async function runClips() {
-    LIST_OF_CLIPS.remove();
     isSizeOfParametersTooLong(LOGIN, PERIOD, VIEW);
 
     clips = await getClips();
@@ -88,6 +87,7 @@ async function runClips() {
         CLIP_CONTENT.style.display = 'none';
     } else {
         NO_CLIP_FOUND.remove();
+        LIST_OF_CLIPS.remove();
         DATA_FROM_CLIPS.remove();
 
         getClip(index);
@@ -178,7 +178,7 @@ async function showDataClips() {
     if(clips === undefined || typeof clips[index] == 'undefined') {
         NO_CLIP_FOUND.innerHTML = 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
     } else {
-        CLIP_CONTENT.remove();
+        CLIP_VIDEO.remove();
         LIST_OF_CLIPS.remove();
         NO_CLIP_FOUND.remove();
         getdataFromClips();        
