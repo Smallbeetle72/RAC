@@ -7,13 +7,13 @@
     </head>
     <body>
 
-        <div id="no-clip-found"></div>
+        <div id="no-clip-found"></div>                                          <!-- Affiché lorsqu'aucun clip n'est trouvé ou une erreur s'est produite -->
 
-        <div id="content">
-            <aside id="sidebar-empty"></aside>
+        <div id="clip-content">                                                 <!-- Espace global -->
+            <aside id="clip-sidebar-empty"></aside>                             <!-- Espace vide à gauche du clip et en haut du logo -->
 
-            <aside id="sidebar-clip">
-                <video id="clip" preload type="video/mp4" src="">
+            <aside id="clip-sidebar">                                           <!-- Espace dans lequel les clips sont diffusés -->
+                <video id="clip-video" preload type="video/mp4" src="">
                     <img title="Your browser does not support the video tag">
                 </video>
                 <video id="noise-tv-screen" preload type="video/mp4" src="">
@@ -21,16 +21,16 @@
                 </video>
             </aside>
 
-            <div id="logo">
-                <img id="random-logo" src=""></img>
+            <div id="clip-logo">                                                <!-- Espace dans lequel les logos sont afichés -->
+                <img id="random-clip-logo" src=""></img>
             </div>
 
-            <div id="informations">
-                <h1 id="h1-title"></h1>
-                <h2 id="h2-details"></h2>
+            <div id="clip-information">                                         <!-- Espace dans lequel les données du clip en cours sont affichées -->
+                <h1 id="h1-clip-title"></h1>
+                <h2 id="h2-clip-details"></h2>
             </div>
             
-            <footer id="footer">
+            <footer id="footer">                                                <!-- Espace auteur -->
                 <h3>!SMALLBEETLE</h3>
             </footer>
         </div>

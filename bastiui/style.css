@@ -10,7 +10,7 @@ body {
     margin: 0;
 }
 
-#content {
+#clip-content {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     grid-template-rows: 756px 128px 186px;
@@ -19,11 +19,11 @@ body {
 
 
 /* COLUMNS */
-#sidebar-empty, #logo {
+#clip-sidebar-empty, #clip-logo {
     grid-column: span 3;
 }
 
-#sidebar-clip, #informations {
+#clip-sidebar, #clip-information {
     grid-column: span 9;
 }
 
@@ -34,11 +34,11 @@ footer {
 
 
 /* ROWS */
-#sidebar-empty, #sidebar-clip {
+#clip-sidebar-empty, #clip-sidebar {
     grid-row: 1;
 }
 
-#logo, #informations {
+#clip-logo, #clip-information {
     grid-row: 2;
 }
 
@@ -49,7 +49,7 @@ footer {
 
 
 /* TEXT */
-#informations > h1 {
+#clip-information > h1 {
     font-size: 40px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -58,7 +58,7 @@ footer {
     color: #FFFFFF;
 }
 
-#informations > h2 {
+#clip-information > h2 {
     color: #18181B;
     font-size: 32px;
     margin: 0px 20px 0px 20px;
@@ -79,7 +79,7 @@ footer {
 
 
 /* LOGO */
-#logo img {
+#clip-logo img {
     height: 100%;
     float: right;
     margin-right: 10%;
@@ -88,15 +88,15 @@ footer {
 
 
 /* CLIPS & NOISE TV SCREEN */
-#clip, #noise-tv-screen {
+#clip-video, #noise-tv-screen {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
 
-/* INFORMATIONS */
-#informations {
+/* CLIPS INFORMATION */
+#clip-information {
     background-color: #56575B;
     flex: 1;
     min-width: 0;

@@ -1,15 +1,17 @@
 <?php
-    include 'config.php';
-        
+    include 'config.php'; // Récupération des éléments de configuration comme l'id client, le secret id et les URL d'API Twitch
+    
+    // Initialisation des éléments essentiels pour les appels API Twitch
     function initCurlOpt($config, $resource, $customRequest) {
         curl_setopt_array($resource, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CAINFO => $config['cert'], // A garder seulement pour localhost
-            CURLOPT_TIMEOUT => 2, // secondes
+            CURLOPT_CAINFO => $config['cert'],  // Décommenter seulement pour localhost
+            CURLOPT_TIMEOUT => 2,               // Secondes
             CURLOPT_CUSTOMREQUEST => $customRequest
         ]);
     }
 
+    // Récupération d'un access token : jeton qui permet d'appeler les autres URL d'API Twitch
     function getAccessToken($config) {
         $curl_token = curl_init($config['getAccessToken'] .
                         '?client_id=' . $config['client_id'] .
@@ -34,6 +36,7 @@
         curl_close($curl_token);
     }
 
+    // Récupération du broadcaster id : permet de récupérer les clips associé au compte (login) souhaité
     function getBroadcasterIdFromLogin($config, $login) {
         $curl_broadcasterId = curl_init($config['getBroadcasterIdFromLogin'] .
                         '?login=' . $login);
