@@ -1,8 +1,12 @@
+// Position de départ pour lire un clip
 const INDEX = 0;
-const LOGIN_CHARS_LIMIT = 20;
-const PERIOD_CHARS_LIMIT = 4;
-const VIEW_CHARS_LIMIT = 4;
 
+// Paramétrage des limites de caractères pour les paramètres
+const LOGIN_PARAM_CHARS_LIMIT = 20;
+const PERIOD_PARAM_CHARS_LIMIT = 4;
+const VIEW_PARAM_CHARS_LIMIT = 4;
+
+// Position des informations dans le tableau réceptionné
 const POS_TITLE = 0;
 const POS_VIEW_COUNT = 1;
 const POS_CREATOR = 2;
@@ -10,25 +14,43 @@ const POS_DATE_CREATION = 3;
 const POS_DURATION = 4;
 const POS_IMAGE = 5;
 const POS_URL = 6;
-const NB_INFO_PER_CLIP = 6;
+const NB_DATA_PER_CLIP = 6;
 
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-const login = escape(urlParams.get('login'));
-const period = escape(urlParams.get('period'));
-const view = escape(urlParams.get('view'));
+// Pour requête et paramètres
+const QUERY_STRING = window.location.search;
+const URL_PARAMS = new URLSearchParams(QUERY_STRING);
+const LOGIN = escape(URL_PARAMS.get('login'));              // Paramètre login obligatoire
+const PERIOD = escape(URL_PARAMS.get('period'));            // Paramètre period obligatoire géré dans le fichier clips.php
+const VIEW = escape(URL_PARAMS.get('view'));                // Paramètre view non obligatoire
 
+// Eléments HTML
+const CLIP_VIDEO = document.getElementById('clip-video');
+const NO_CLIP_FOUND = document.getElementById('no-clip-found');
+const CLIP_CONTENT = document.getElementById('clip-content');
+const LIST_OF_CLIPS = document.getElementById('list-of-clips');
+const DATA_FROM_CLIPS = document.getElementById('data-from-clips');
+const DATA_CLIP = document.getElementById('data-clip');
+
+// Initialisations
 let index = INDEX;
 let clips;
 
+// Vérification des limites de caractères des paramètres
 function isSizeOfParametersTooLong(login, period, view) {
-    if(login.length > LOGIN_CHARS_LIMIT || period.length > PERIOD_CHARS_LIMIT || view.length > VIEW_CHARS_LIMIT) {
+    if(login.length > LOGIN_PARAM_CHARS_LIMIT || period.length > PERIOD_PARAM_CHARS_LIMIT || view.length > VIEW_PARAM_CHARS_LIMIT) {
         const message = `Limite de caractères dépassée pour au moins un des paramètres.`;
-        document.getElementById('noClipFound').innerHTML += 'Limite de caractères dépassée pour au moins un des paramètres.';
+        NO_CLIP_FOUND.innerHTML += 'Limite de caractères dépassée pour au moins un des paramètres.';
         return;
     }
 }
 
+// Détermine si on est à la fin de la liste des clips : permet de reboucler
+function isEndOfTheList() {
+    let length = clips.length;
+    return index == length-1;
+}
+
+// Récupération de tous les clips en fonction des paramètres period et view donnés
 async function getClips() {
     try {
         const response = await fetch("./clips.php", {
@@ -36,7 +58,7 @@ async function getClips() {
             headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             },
-            body: `login=${login}&period=${period}&view=${view}`,
+            body: `login=${LOGIN}&period=${PERIOD}&view=${VIEW}`,
         });
         if (!response.ok) {
             const message = `An error has occured: ${response.status}`;
@@ -51,32 +73,26 @@ async function getClips() {
 }
 
 function getClip(index) {
-    document.getElementById('clip').setAttribute('src', clips[index]);
+    CLIP_VIDEO.setAttribute('src', clips[index]);
 }
 
-function isEndOfTheList() {
-    let length = clips.length;
-    return index == length-1;
-}
+// Lecture bouclée sur tous les clips
+async function runClips() {
+    LIST_OF_CLIPS.remove();
+    isSizeOfParametersTooLong(LOGIN, PERIOD, VIEW);
 
-async function runClip() {
-    document.getElementById('listOfClips').remove();
-    isSizeOfParametersTooLong(login, period, view);
-   
     clips = await getClips();
-    if(clips === undefined || typeof clips[index] == 'undefined') {
-        document.getElementById("noClipFound").innerHTML += 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
-    } else {
-        document.getElementById('noClipFound').remove();
-        document.getElementById('dataFromClips').remove();
 
-        clips.forEach(clip => {
-            clip.load; // On charge d'avance tous les clips pour éviter les latences entre chaque vidéo
-        });
+    if(clips === undefined || typeof clips[index] == 'undefined') {
+        NO_CLIP_FOUND.innerHTML += 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
+        CLIP_CONTENT.style.display = 'none';
+    } else {
+        NO_CLIP_FOUND.remove();
+        DATA_FROM_CLIPS.remove();
 
         getClip(index);
         
-        document.getElementById('clip').addEventListener('ended', myHandler, false);
+        CLIP_VIDEO.addEventListener('ended', myHandler, false);
         function myHandler(e) {
             if(!e) { e = window.event; }
             if(isEndOfTheList()) {
@@ -89,18 +105,19 @@ async function runClip() {
     }
 }
 
+// Récupération des clips pour le format view = list
 function getListOfClips() {
     for(i=0; i < clips.length; i++) {
         let date = new Date(clips[POS_DATE_CREATION + index + i]);
 
-        document.getElementById('listOfClips').innerHTML +=
-            '<div class="clipInformation">' +
+        LIST_OF_CLIPS.innerHTML +=
+            '<div id="clip-information">' +
                 '<section> ' +
                     '<a href="' + clips[POS_URL + index + i] + '">' +
-                        '<img class="image" src="' + clips[POS_IMAGE + index + i] + '">' +
+                        '<img id="image" src="' + clips[POS_IMAGE + index + i] + '">' +
                     '</a>' +
                 '</section>' +
-                '<section class="information">' +
+                '<section id="clip-content-information">' +
                     '<b>Titre : </b>' + clips[POS_TITLE + index + i] + '</br>' +
                     '<b>Vues : </b>' + clips[POS_VIEW_COUNT + index + i] + '</br>' +
                     '<b>Créé par : </b>' + clips[POS_CREATOR + index + i] + '</br>' +
@@ -108,26 +125,28 @@ function getListOfClips() {
                 '</section>'
             '</div>';
 
-            i = i + NB_INFO_PER_CLIP;
+            i = i + NB_DATA_PER_CLIP;
     }
 }
 
+// Affichage des données en view = list
 async function showListOfClips() {
-    isSizeOfParametersTooLong(login, period, view);
+    isSizeOfParametersTooLong(LOGIN, PERIOD, VIEW);
    
     clips = await getClips();
     if(clips === undefined || typeof clips[index] == 'undefined') {
-        document.getElementById("noClipFound").innerHTML = 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
+        NO_CLIP_FOUND.innerHTML = 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
     } else {
-        document.getElementById('clip').remove();
-        document.getElementById('dataFromClips').remove();
-        document.getElementById('noClipFound').remove();
+        CLIP_VIDEO.remove();
+        DATA_FROM_CLIPS.remove();
+        NO_CLIP_FOUND.remove();
         getListOfClips();        
     }
 }
 
+// Récupération des données des clips pour le format view = data
 function getdataFromClips() {
-    document.getElementById('data').innerHTML =
+    DATA_CLIP.innerHTML =
         '<tr>' +
             '<th>Titre</th>' +
             '<th>Vues</th>' +
@@ -137,7 +156,7 @@ function getdataFromClips() {
         '</tr>';
 
     for(i=0; i < clips.length; i++) {
-        document.getElementById('data').innerHTML +=
+        DATA_CLIP.innerHTML +=
                 '<tr>' +
                     '<td>' + clips[POS_TITLE + index + i] + '</td>' +
                     '<td>' + clips[POS_VIEW_COUNT + index + i] + '</td>' +
@@ -147,28 +166,30 @@ function getdataFromClips() {
                 '</tr'
                 ;
 
-        i = i + NB_INFO_PER_CLIP;
+        i = i + NB_DATA_PER_CLIP;
     }
 }
 
+// Affichage des données en view = data
 async function showDataClips() {
-    isSizeOfParametersTooLong(login, period, view);
+    isSizeOfParametersTooLong(LOGIN, PERIOD, VIEW);
    
     clips = await getClips();
     if(clips === undefined || typeof clips[index] == 'undefined') {
-        document.getElementById("noClipFound").innerHTML = 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
+        NO_CLIP_FOUND.innerHTML = 'Aucun clip trouvé. </br> Vérifiez l\'orthographe de la chaine souhaitée ou retentez avec une période plus large.';
     } else {
-        document.getElementById('clip').remove();
-        document.getElementById('listOfClips').remove();
-        document.getElementById('noClipFound').remove();
+        CLIP_VIDEO.remove();
+        LIST_OF_CLIPS.remove();
+        NO_CLIP_FOUND.remove();
         getdataFromClips();        
     }
 }
 
-if(view.length > 0 && view =='list') {
+// Lancement
+if(VIEW.length > 0 && VIEW =='list') {
     showListOfClips();
-} else if(view.length > 0 && view =='data') {
+} else if(VIEW.length > 0 && VIEW =='data') {
     showDataClips();
 } else {
-    runClip();
+    runClips();
 }

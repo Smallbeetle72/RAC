@@ -15,11 +15,11 @@ const POS_VIDEO = 5;
 // Pour requête et paramètres
 const QUERY_STRING = window.location.search;
 const URL_PARAMS = new URLSearchParams(QUERY_STRING);
-const PERIOD = escape(URL_PARAMS.get('period'));    // Paramètre période obligatoire géré dans le fichier customClips.php
+const PERIOD = escape(URL_PARAMS.get('period'));    // Paramètre period obligatoire géré dans le fichier customClips.php
 let max = escape(URL_PARAMS.get('max'));            // Paramètre max non obligatoire
 
 // Eléments HTML
-const CLIP_FROM_DIV_CLIP_VIDEO = document.getElementById('clip-video');
+const CLIP_VIDEO = document.getElementById('clip-video');
 const RANDOM_LOGO = document.getElementById('random-clip-logo');
 const NO_CLIP_FOUND = document.getElementById('no-clip-found');
 const CLIP_CONTENT = document.getElementById('clip-content');
@@ -92,7 +92,7 @@ async function loadLogos() {
     }
 }
 
-// Récupération de tous les clips en fonction des paramètres période et max donnés
+// Récupération de tous les clips en fonction des paramètres period et max donnés
 async function getClips() {
     try {
         const response = await fetch("./customClips.php", {
@@ -119,7 +119,7 @@ function displayDataAndPlayClip(clip) {
     // On lit en premier la vidéo zapping (zap.mp4) et on cache la partie clip
     NOISE_TV_SCREEN.play();
     NOISE_TV_SCREEN.onplay = function () {
-        CLIP_FROM_DIV_CLIP_VIDEO.style.display = 'none';
+        CLIP_VIDEO.style.display = 'none';
         NOISE_TV_SCREEN.style.display = 'block';
     }
 
@@ -132,13 +132,13 @@ function displayDataAndPlayClip(clip) {
         let date = new Date(clip[POS_DATE_CREATION]);    
         CLIP_DETAILS.innerHTML = 'Clipé par : ' + clip[POS_CREATOR] + ' - Le ' + date.toLocaleDateString() + ' - ' + clip[POS_VIEW_COUNT] + ' vues';
 
-        CLIP_FROM_DIV_CLIP_VIDEO.src = clip[POS_VIDEO];
-        CLIP_FROM_DIV_CLIP_VIDEO.play();
-        CLIP_FROM_DIV_CLIP_VIDEO.style.display = 'block';
+        CLIP_VIDEO.src = clip[POS_VIDEO];
+        CLIP_VIDEO.play();
+        CLIP_VIDEO.style.display = 'block';
     }
 
     // On cache et on met en pause la video zapping (zap.mp4) quand le clip est en lecture
-    CLIP_FROM_DIV_CLIP_VIDEO.onplay = function () {
+    CLIP_VIDEO.onplay = function () {
         NOISE_TV_SCREEN.pause();
         NOISE_TV_SCREEN.style.display = 'none';
     }
@@ -163,7 +163,7 @@ async function runClips() {
 
         displayDataAndPlayClip(clips[index]);
 
-        CLIP_FROM_DIV_CLIP_VIDEO.onended = function () {
+        CLIP_VIDEO.onended = function () {
             if(isEndOfTheList()) {
                 index = INDEX;
                 displayDataAndPlayClip(clips[index]);
