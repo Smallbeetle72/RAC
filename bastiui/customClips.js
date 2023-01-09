@@ -130,7 +130,7 @@ function displayDataAndPlayClip(clip) {
         CLIP_TITLE.innerHTML = clip[POS_TITLE];
 
         let date = new Date(clip[POS_DATE_CREATION]);    
-        CLIP_DETAILS.innerHTML = 'Clipé par : ' + clip[POS_CREATOR] + ' - Le ' + date.toLocaleDateString() + ' - ' + clip[POS_VIEW_COUNT] + ' vues';
+        CLIP_DETAILS.innerHTML = 'Clipé par : ' + clip[POS_CREATOR] + ' - Le ' + date.toLocaleDateString('fr-FR') + ' - ' + clip[POS_VIEW_COUNT] + ' vues';
 
         CLIP_VIDEO.src = clip[POS_VIDEO];
         CLIP_VIDEO.play();

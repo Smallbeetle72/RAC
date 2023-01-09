@@ -13,7 +13,7 @@ body {
 #clip-content {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 2fr 128px 186px;
+    grid-template-rows: 811px 128px 186px;
 }
 
 

@@ -121,7 +121,7 @@ function getListOfClips() {
                     '<b>Titre : </b>' + clips[POS_TITLE + index + i] + '</br>' +
                     '<b>Vues : </b>' + clips[POS_VIEW_COUNT + index + i] + '</br>' +
                     '<b>Créé par : </b>' + clips[POS_CREATOR + index + i] + '</br>' +
-                    '<b>Le : </b>' + date.toLocaleDateString() +
+                    '<b>Le : </b>' + date.toLocaleDateString('fr-FR') +
                 '</section>'
             '</div>';
 
@@ -152,16 +152,17 @@ function getdataFromClips() {
             '<th>Vues</th>' +
             '<th>Créateur</th>' +
             '<th>Date de création</th>' +
-            '<th>Durée</th>' +
+            '<th>Durée (secondes)</th>' +
         '</tr>';
 
     for(i=0; i < clips.length; i++) {
+        let date = new Date(clips[POS_DATE_CREATION + index + i]);
         DATA_CLIP.innerHTML +=
                 '<tr>' +
-                    '<td>' + clips[POS_TITLE + index + i] + '</td>' +
+                    '<td><a <a href="' + clips[POS_URL + index + i] + '">' + clips[POS_TITLE + index + i] + '</a></td>' +
                     '<td>' + clips[POS_VIEW_COUNT + index + i] + '</td>' +
                     '<td>' + clips[POS_CREATOR + index + i] + '</td>' +
-                    '<td>' + clips[POS_DATE_CREATION + index + i] + '</td>' +
+                    '<td>' + date.toLocaleDateString('fr-FR') + '</td>' +
                     '<td>' + clips[POS_DURATION + index + i] + '</td>'
                 '</tr'
                 ;
